@@ -146,6 +146,41 @@ Open http://localhost in your browser. You should see the M0 landing page with s
 **Port conflicts:**
 If ports 80, 3000, 4000, or 5432 are in use, stop the conflicting services or modify `docker-compose.yml`.
 
+**Docker network issues:**
+If you encounter Alpine apk permission errors during build:
+```
+WARNING: fetching https://dl-cdn.alpinelinux.org/alpine/v3.22/main: Permission denied
+```
+This is a Docker network configuration issue. Use the local development setup instead:
+
+```bash
+# Start PostgreSQL only with Docker
+docker run -d --name bruno-ims-db \
+  -e POSTGRES_USER=postgres \
+  -e POSTGRES_PASSWORD=postgres \
+  -e POSTGRES_DB=bruno_ims \
+  -p 5432:5432 \
+  postgres:16-alpine
+
+# Run API locally
+cd apps/api
+npm install
+npx prisma generate
+npx prisma migrate deploy
+npm run dev
+
+# Run Web locally
+cd apps/web
+npm install
+npm run dev
+```
+
+Then access:
+- Web: http://localhost:3000
+- API: http://localhost:4000
+
+See [RUNBOOK.md](./RUNBOOK.md) for comprehensive deployment and troubleshooting guide.
+
 **Database connection issues:**
 The API waits for the database to be ready using a health check. If migrations fail, check logs:
 ```bash
