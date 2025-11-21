@@ -30,6 +30,16 @@ app.post('/auth/login', (req: Request, res: Response) => {
   });
 });
 
+// POS - Outlets endpoints
+app.get('/pos/outlets', async (req: Request, res: Response) => {
+  try {
+    const outlets = await prisma.outlet.findMany();
+    res.json(outlets);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch outlets' });
+  }
+});
+
 // POS - Tables endpoints
 app.get('/pos/tables', async (req: Request, res: Response) => {
   try {
@@ -44,13 +54,57 @@ app.get('/pos/tables', async (req: Request, res: Response) => {
 
 app.post('/pos/tables', async (req: Request, res: Response) => {
   try {
-    const { number, capacity, outletId } = req.body;
+    const { name, capacity, outletId } = req.body;
     const table = await prisma.table.create({
-      data: { number, capacity: capacity || 4, outletId }
+      data: { name, capacity: capacity || 4, outletId },
+      include: { outlet: true }
     });
     res.status(201).json(table);
   } catch (error) {
     res.status(500).json({ error: 'Failed to create table' });
+  }
+});
+
+app.get('/pos/tables/:id', async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const table = await prisma.table.findUnique({
+      where: { id },
+      include: { outlet: true }
+    });
+    if (!table) {
+      return res.status(404).json({ error: 'Table not found' });
+    }
+    res.json(table);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch table' });
+  }
+});
+
+app.put('/pos/tables/:id', async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { name, capacity, outletId } = req.body;
+    const table = await prisma.table.update({
+      where: { id },
+      data: { name, capacity, outletId },
+      include: { outlet: true }
+    });
+    res.json(table);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to update table' });
+  }
+});
+
+app.delete('/pos/tables/:id', async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    await prisma.table.delete({
+      where: { id }
+    });
+    res.status(204).send();
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to delete table' });
   }
 });
 
@@ -270,7 +324,13 @@ async function main() {
   }
 }
 
-main();
+// Only start server if not in test mode
+if (require.main === module) {
+  main();
+}
+
+// Export app for testing
+export { app, prisma };
 
 // Graceful shutdown
 process.on('SIGINT', async () => {

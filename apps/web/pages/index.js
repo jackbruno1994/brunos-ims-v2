@@ -48,11 +48,16 @@ export default function Home() {
           <ul>
             {tables.map((table) => (
               <li key={table.id}>
-                Table {table.number} (Capacity: {table.capacity})
+                Table {table.name} (Capacity: {table.capacity})
               </li>
             ))}
           </ul>
         )}
+        <p style={{ marginTop: '1rem' }}>
+          <a href="/tables" style={{ color: '#0070f3', textDecoration: 'none', fontWeight: 'bold' }}>
+            → Manage Tables
+          </a>
+        </p>
       </div>
 
       <div style={{ marginTop: '2rem', padding: '1rem', background: '#e8f5e9', borderRadius: '4px' }}>

@@ -30,13 +30,15 @@ model Outlet {
 
 model Table {
   id        String   @id @default(uuid())
-  number    String
+  name      String
   capacity  Int      @default(4)
   outletId  String
   outlet    Outlet   @relation(fields: [outletId], references: [id])
   orders    Order[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@unique([outletId, name])
 }
 
 model Ingredient {
