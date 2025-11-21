@@ -1,0 +1,9 @@
+ID,Title,Domain,Priority,Phase,Estimate(d),Status,Notes
+POS-001,Basic table model & CRUD,POS,P0,M0,1,TODO,Tables already wired — extend layout logic.
+POS-010,Order create/send/pay,POS,P0,M0,3,TODO,Endpoints exist — refine for discounts/split/merge.
+POS-020,POS PWA offline shell,POS,P0,M0,5,TODO,Implement IndexedDB queue & sync.
+KDS-001,KDS ticket board,KDS,P0,M0,3,TODO,KDS screen wired — add bump/expedite.
+RCPE-001,Recipe yield & cost,Recipes,P0,M0,3,TODO,Extend Recipe to compute ideal cost from ingredients.
+INV-001,StockMove on sale,Inventory,P0,M0,2,TODO,On PAID order, create SALE stock moves.
+PROC-100,Suppliers & POs,Procurement,P1,M1,5,TODO,Endpoints exist — add approvals and status transitions.
+PROC-110,GRN & variance,Procurement,P1,M1,4,TODO,Extend GRN to impact stock and calculate variance.

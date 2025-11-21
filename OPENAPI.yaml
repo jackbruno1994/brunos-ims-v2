@@ -1,0 +1,111 @@
+openapi: 3.0.3
+info:
+  title: Bruno's IMS API
+  version: 0.1.0
+  description: "Core API contract for Bruno\u2019s IMS M0 (POS, KDS, Recipes, Inventory,\
+    \ Procurement)."
+servers:
+- url: /api
+paths:
+  /auth/login:
+    post:
+      summary: Login
+      responses:
+        '200':
+          description: OK
+  /pos/tables:
+    get:
+      summary: List tables
+      responses:
+        '200':
+          description: OK
+    post:
+      summary: Create table
+      responses:
+        '201':
+          description: Created
+  /pos/orders:
+    get:
+      summary: List orders
+      responses:
+        '200':
+          description: OK
+    post:
+      summary: Create order
+      responses:
+        '201':
+          description: Created
+  /pos/orders/{orderId}/send:
+    post:
+      summary: Send to KDS
+      responses:
+        '200':
+          description: OK
+  /pos/orders/{orderId}/pay:
+    post:
+      summary: Pay order
+      responses:
+        '200':
+          description: OK
+  /kds/tickets:
+    get:
+      summary: KDS tickets
+      responses:
+        '200':
+          description: OK
+  /recipes:
+    get:
+      summary: List recipes
+      responses:
+        '200':
+          description: OK
+    post:
+      summary: Create recipe
+      responses:
+        '201':
+          description: Created
+  /inventory/ingredients:
+    get:
+      summary: List ingredients
+      responses:
+        '200':
+          description: OK
+    post:
+      summary: Create ingredient
+      responses:
+        '201':
+          description: Created
+  /inventory/stock-moves:
+    post:
+      summary: Create stock move
+      responses:
+        '201':
+          description: Created
+  /procurement/suppliers:
+    get:
+      summary: List suppliers
+      responses:
+        '200':
+          description: OK
+    post:
+      summary: Create supplier
+      responses:
+        '201':
+          description: Created
+  /procurement/pos:
+    get:
+      summary: List POs
+      responses:
+        '200':
+          description: OK
+    post:
+      summary: Create PO
+      responses:
+        '201':
+          description: Created
+  /procurement/grns:
+    post:
+      summary: Create GRN
+      responses:
+        '201':
+          description: Created
