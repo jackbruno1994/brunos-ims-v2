@@ -3,22 +3,23 @@
 
 set -e
 
-host="${DB_HOST:-db}"
-port="${DB_PORT:-5432}"
-timeout="${DB_TIMEOUT:-30}"
+echo "Waiting for PostgreSQL to be ready..."
 
-echo "Waiting for PostgreSQL at $host:$port..."
+# Simple sleep to give PostgreSQL time to start
+sleep 5
 
-waited=0
-until nc -z "$host" "$port" || [ $waited -ge $timeout ]; do
-  echo "PostgreSQL is unavailable - sleeping"
-  sleep 1
-  waited=$((waited + 1))
+# Try to run migrations with retries
+max_retries=10
+retry_count=0
+
+until npx prisma migrate deploy 2>/dev/null; do
+  if [ $retry_count -ge $max_retries ]; then
+    echo "Timeout waiting for PostgreSQL after $max_retries attempts"
+    exit 1
+  fi
+  echo "PostgreSQL not ready, retrying... (attempt $((retry_count + 1))/$max_retries)"
+  sleep 3
+  retry_count=$((retry_count + 1))
 done
 
-if [ $waited -ge $timeout ]; then
-  echo "Timeout waiting for PostgreSQL"
-  exit 1
-fi
-
-echo "PostgreSQL is up - executing command"
+echo "PostgreSQL is up and migrations applied successfully"
