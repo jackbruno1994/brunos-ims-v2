@@ -1,0 +1,24 @@
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Copy package files
+COPY apps/api/package*.json ./
+
+# Install dependencies
+RUN npm install
+
+# Copy application code
+COPY apps/api/ ./
+
+# Generate Prisma Client
+RUN npx prisma generate
+
+# Build TypeScript
+RUN npm run build
+
+# Expose port
+EXPOSE 4000
+
+# Start command
+CMD ["sh", "-c", "npx prisma migrate deploy && npm start"]
