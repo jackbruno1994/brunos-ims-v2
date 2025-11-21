@@ -85,7 +85,7 @@ export default function Tables() {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: name === 'capacity' ? parseInt(value) || 0 : value,
+      [name]: name === 'capacity' ? (parseInt(value, 10) || prev.capacity) : value,
     }));
   };
 
