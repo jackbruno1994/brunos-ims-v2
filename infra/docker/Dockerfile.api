@@ -1,0 +1,28 @@
+FROM node:20-alpine AS base
+
+WORKDIR /app
+
+# Copy root package files and prisma schema
+COPY prisma ./prisma/
+COPY apps/api/package*.json apps/api/
+
+# Install dependencies
+WORKDIR /app/apps/api
+RUN npm install
+
+# Generate Prisma client
+WORKDIR /app
+RUN npx prisma generate
+
+# Copy API source code
+COPY apps/api ./apps/api/
+
+# Build TypeScript
+WORKDIR /app/apps/api
+RUN npm run build
+
+# Expose port
+EXPOSE 4000
+
+# Start with migrations then run
+CMD ["/bin/sh", "-c", "sleep 10 && npx prisma migrate deploy && npm start"]
