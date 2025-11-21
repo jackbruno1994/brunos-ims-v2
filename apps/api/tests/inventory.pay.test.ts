@@ -23,12 +23,8 @@ describe('POST /api/pos/orders/:orderId/pay - Inventory deduction on payment', (
     await prisma.ingredient.deleteMany();
     await prisma.table.deleteMany();
     await prisma.outlet.deleteMany();
-  });
 
-  beforeEach(async () => {
-    // Seed minimal test data
-    
-    // Create outlet and table
+    // Create stable reference data
     outlet = await prisma.outlet.create({
       data: {
         name: 'Test Outlet',
@@ -45,7 +41,6 @@ describe('POST /api/pos/orders/:orderId/pay - Inventory deduction on payment', (
       }
     });
 
-    // Create ingredients
     ingredient1 = await prisma.ingredient.create({
       data: {
         name: 'Flour',
@@ -62,7 +57,6 @@ describe('POST /api/pos/orders/:orderId/pay - Inventory deduction on payment', (
       }
     });
 
-    // Create recipe with recipe items
     recipe = await prisma.recipe.create({
       data: {
         name: 'Test Cake',
@@ -86,6 +80,14 @@ describe('POST /api/pos/orders/:orderId/pay - Inventory deduction on payment', (
         recipeItems: true
       }
     });
+  });
+
+  beforeEach(async () => {
+    // Clean up order-related data only
+    await prisma.stockMove.deleteMany();
+    await prisma.payment.deleteMany();
+    await prisma.orderItem.deleteMany();
+    await prisma.order.deleteMany();
 
     // Create order with order items
     order = await prisma.order.create({
@@ -110,19 +112,20 @@ describe('POST /api/pos/orders/:orderId/pay - Inventory deduction on payment', (
   });
 
   afterEach(async () => {
-    // Clean up after each test
+    // Clean up order-related data after each test
     await prisma.stockMove.deleteMany();
     await prisma.payment.deleteMany();
     await prisma.orderItem.deleteMany();
     await prisma.order.deleteMany();
+  });
+
+  afterAll(async () => {
+    // Clean up all test data
     await prisma.recipeItem.deleteMany();
     await prisma.recipe.deleteMany();
     await prisma.ingredient.deleteMany();
     await prisma.table.deleteMany();
     await prisma.outlet.deleteMany();
-  });
-
-  afterAll(async () => {
     await prisma.$disconnect();
   });
 

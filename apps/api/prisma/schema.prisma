@@ -86,7 +86,6 @@ model Order {
   updatedAt  DateTime    @updatedAt
   orderItems OrderItem[]
   payments   Payment[]
-  stockMoves StockMove[]
 }
 
 model OrderItem {
@@ -119,8 +118,7 @@ model StockMove {
   qty          Float      // negative for deductions, positive for additions
   reason       String     // SALE, PURCHASE, WASTE, ADJUSTMENT, etc
   refType      String?    // ORDER, PO, GRN, etc
-  refId        Int?
-  order        Order?     @relation(fields: [refId], references: [id])
+  refId        Int?       // Reference ID (not enforced by FK to allow polymorphic references)
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
 }

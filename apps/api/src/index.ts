@@ -162,7 +162,7 @@ app.post('/api/pos/orders/:orderId/pay', async (req: Request, res: Response) => 
       
       // Calculate ingredient deductions
       // Aggregate by ingredientId to avoid duplicate StockMoves
-      const ingredientDeductions = new Map<number, { ingredientId: number, totalQty: number, ingredientName: string }>();
+      const ingredientDeductions = new Map<number, { ingredientId: number, totalQty: number }>();
       
       for (const orderItem of order.orderItems) {
         for (const recipeItem of orderItem.recipe.recipeItems) {
@@ -175,8 +175,7 @@ app.post('/api/pos/orders/:orderId/pay', async (req: Request, res: Response) => 
           } else {
             ingredientDeductions.set(ingredientId, {
               ingredientId,
-              totalQty: qtyToDeduct,
-              ingredientName: recipeItem.ingredient.name
+              totalQty: qtyToDeduct
             });
           }
         }
