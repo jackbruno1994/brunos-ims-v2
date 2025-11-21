@@ -7,6 +7,9 @@ dist/
 build/
 *.js.map
 
+# Compiled files (keep only TypeScript sources)
+apps/api/tests/**/*.js
+
 # Environment variables
 .env
 !.env.example
