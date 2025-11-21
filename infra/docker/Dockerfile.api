@@ -1,0 +1,24 @@
+FROM node:18-slim
+
+# Install OpenSSL for Prisma
+RUN apt-get update -y && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# Copy all application files at once
+COPY apps/api/ ./
+
+# Install dependencies
+RUN npm install
+
+# Build application
+RUN npm run build
+
+# Make wait-for-db script executable
+RUN chmod +x wait-for-db.sh
+
+# Expose port
+EXPOSE 4000
+
+# Wait for database and start server
+CMD ["sh", "-c", "./wait-for-db.sh && node dist/index.js"]
