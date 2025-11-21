@@ -1,0 +1,180 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  name      String
+  role      String   // ADMIN, MANAGER, STAFF
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Outlet {
+  id        Int      @id @default(autoincrement())
+  name      String
+  address   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  tables    Table[]
+}
+
+model Table {
+  id        Int      @id @default(autoincrement())
+  outletId  Int
+  outlet    Outlet   @relation(fields: [outletId], references: [id])
+  number    String
+  capacity  Int
+  status    String   // AVAILABLE, OCCUPIED, RESERVED
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  orders    Order[]
+}
+
+model Ingredient {
+  id          Int          @id @default(autoincrement())
+  name        String
+  unit        String       // kg, L, units, etc
+  costPerUnit Float
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  recipeItems RecipeItem[]
+  stockMoves  StockMove[]
+}
+
+model Recipe {
+  id          Int          @id @default(autoincrement())
+  name        String
+  description String?
+  price       Float
+  category    String?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  recipeItems RecipeItem[]
+  orderItems  OrderItem[]
+}
+
+model RecipeItem {
+  id           Int        @id @default(autoincrement())
+  recipeId     Int
+  recipe       Recipe     @relation(fields: [recipeId], references: [id])
+  ingredientId Int
+  ingredient   Ingredient @relation(fields: [ingredientId], references: [id])
+  qty          Float      // quantity of ingredient per recipe
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  @@unique([recipeId, ingredientId])
+}
+
+model Order {
+  id         Int         @id @default(autoincrement())
+  tableId    Int?
+  table      Table?      @relation(fields: [tableId], references: [id])
+  status     String      // DRAFT, SENT, PAID, CANCELLED
+  total      Float       @default(0)
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+  orderItems OrderItem[]
+  payments   Payment[]
+  stockMoves StockMove[]
+}
+
+model OrderItem {
+  id        Int      @id @default(autoincrement())
+  orderId   Int
+  order     Order    @relation(fields: [orderId], references: [id])
+  recipeId  Int
+  recipe    Recipe   @relation(fields: [recipeId], references: [id])
+  qty       Int
+  price     Float
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Payment {
+  id        Int      @id @default(autoincrement())
+  orderId   Int
+  order     Order    @relation(fields: [orderId], references: [id])
+  amount    Float
+  method    String   // CASH, CARD, ONLINE
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model StockMove {
+  id           Int        @id @default(autoincrement())
+  ingredientId Int
+  ingredient   Ingredient @relation(fields: [ingredientId], references: [id])
+  type         String     // PURCHASE, SALE, ADJUSTMENT, WASTE
+  qty          Float      // negative for deductions, positive for additions
+  reason       String     // SALE, PURCHASE, WASTE, ADJUSTMENT, etc
+  refType      String?    // ORDER, PO, GRN, etc
+  refId        Int?
+  order        Order?     @relation(fields: [refId], references: [id])
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+}
+
+model Supplier {
+  id             Int             @id @default(autoincrement())
+  name           String
+  contact        String?
+  email          String?
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  purchaseOrders PurchaseOrder[]
+}
+
+model PurchaseOrder {
+  id                 Int                 @id @default(autoincrement())
+  supplierId         Int
+  supplier           Supplier            @relation(fields: [supplierId], references: [id])
+  status             String              // DRAFT, SENT, RECEIVED, CANCELLED
+  total              Float               @default(0)
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  purchaseOrderLines PurchaseOrderLine[]
+  grns               GRN[]
+}
+
+model PurchaseOrderLine {
+  id              Int           @id @default(autoincrement())
+  purchaseOrderId Int
+  purchaseOrder   PurchaseOrder @relation(fields: [purchaseOrderId], references: [id])
+  ingredientId    Int
+  qty             Float
+  unitPrice       Float
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+}
+
+model GRN {
+  id              Int       @id @default(autoincrement())
+  purchaseOrderId Int
+  purchaseOrder   PurchaseOrder @relation(fields: [purchaseOrderId], references: [id])
+  receivedAt      DateTime  @default(now())
+  notes           String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  grnLines        GRNLine[]
+}
+
+model GRNLine {
+  id           Int      @id @default(autoincrement())
+  grnId        Int
+  grn          GRN      @relation(fields: [grnId], references: [id])
+  ingredientId Int
+  qtyReceived  Float
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}

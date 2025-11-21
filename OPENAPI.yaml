@@ -44,9 +44,77 @@ paths:
   /pos/orders/{orderId}/pay:
     post:
       summary: Pay order
+      description: Process payment for an order. Creates Payment record and StockMove entries for inventory deduction.
+      parameters:
+        - name: orderId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                amount:
+                  type: number
+                  description: Payment amount (defaults to order total if not provided)
+                method:
+                  type: string
+                  description: Payment method (CASH, CARD, ONLINE)
+                  default: CASH
       responses:
         '200':
-          description: OK
+          description: Payment processed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  payment:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                      orderId:
+                        type: integer
+                      amount:
+                        type: number
+                      method:
+                        type: string
+                  stockMovesCreated:
+                    type: integer
+                    description: Number of StockMove entries created
+                  stockMoves:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        ingredientId:
+                          type: integer
+                        type:
+                          type: string
+                        qty:
+                          type: number
+                          description: Negative value indicates deduction
+                        reason:
+                          type: string
+                        refType:
+                          type: string
+                        refId:
+                          type: integer
+                  order:
+                    type: object
+                    description: Updated order with PAID status
+        '400':
+          description: Bad request (e.g., order already paid)
+        '404':
+          description: Order not found
   /kds/tickets:
     get:
       summary: KDS tickets
