@@ -1,0 +1,35 @@
+FROM node:20-alpine AS base
+
+# Install dependencies for building
+RUN apk add --no-cache libc6-compat netcat-openbsd wget
+
+WORKDIR /app
+
+# Copy root package files and prisma schema
+COPY prisma ./prisma/
+COPY apps/api/package*.json apps/api/
+
+# Install dependencies
+WORKDIR /app/apps/api
+RUN npm ci
+
+# Generate Prisma client
+WORKDIR /app
+RUN npx prisma generate
+
+# Copy API source code
+COPY apps/api ./apps/api/
+
+# Build TypeScript
+WORKDIR /app/apps/api
+RUN npm run build
+
+# Copy wait-for-db script
+COPY infra/docker/wait-for-db.sh /app/wait-for-db.sh
+RUN chmod +x /app/wait-for-db.sh
+
+# Expose port
+EXPOSE 4000
+
+# Start with wait-for-db, then migrate and run
+CMD ["/bin/sh", "-c", "/app/wait-for-db.sh db 5432 && npx prisma migrate deploy && npm start"]
