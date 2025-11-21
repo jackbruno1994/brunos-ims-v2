@@ -29,8 +29,7 @@ Thumbs.db
 # Testing
 coverage/
 
-# Prisma
-apps/api/prisma/migrations/
+# Prisma (keep migrations in git)
 
 # Logs
 *.log
